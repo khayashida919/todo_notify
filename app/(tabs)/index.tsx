@@ -1,56 +1,76 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
+import { Input, Button, ListItem, Icon } from '@rneui/themed';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
 
 export default function HomeScreen() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [inputText, setInputText] = useState('');
+
+  const addTodo = () => {
+     if (inputText.trim()) {
+      setTodos([
+        ...todos,
+        { id: Date.now(), text: inputText, completed: false }
+      ]);
+      setInputText('');
+    }
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
+  };
+
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.container}>
+        <View style={styles.inputContainer}>
+          <Input
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="新しいタスクを入力"
+            rightIcon={
+              <Button
+                icon={<Icon name="add" size={24} color="white" />}
+                onPress={addTodo}
+              />
+            }
+          />
+        </View>
+
+        {todos.map(todo => (
+          <ListItem.Swipeable
+            key={todo.id}
+            rightContent={() => (
+              <Button
+                icon={{ name: 'delete', color: 'white' }}
+                buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+                onPress={() => deleteTodo(todo.id)}
+              />
+            )}
+          >
+            <ListItem.CheckBox
+              checked={todo.completed}
+              onPress={() => toggleTodo(todo.id)}
+            />
+            <ListItem.Content>
+              <ListItem.Title style={todo.completed ? styles.completedText : null}>
+                {todo.text}
+              </ListItem.Title>
+            </ListItem.Content>
+          </ListItem.Swipeable>
+        ))}
+      </View>
   );
 }
 
@@ -70,5 +90,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  completedText: {
+    textDecorationLine: 'line-through',
+    color: '#888',
   },
 });
