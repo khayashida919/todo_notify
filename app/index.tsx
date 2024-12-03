@@ -1,4 +1,4 @@
-import { Button, Header, Icon, Input, ListItem } from "@rneui/themed";
+import { Button, FAB, Header, Icon, Input, ListItem } from "@rneui/themed";
 import { useState } from "react";
 import { View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -95,6 +95,13 @@ export default function HomeScreen() {
           </ListItem.Content>
         </ListItem.Swipeable>
       ))}
+
+      <FAB
+        icon={{ name: "add", color: "white" }}
+        color="green"
+        placement="right"
+        style={{ marginBottom: 32 }}
+      />
     </SafeAreaProvider>
   );
 }
